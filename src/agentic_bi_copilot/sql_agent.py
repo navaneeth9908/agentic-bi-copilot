@@ -36,9 +36,21 @@ JOIN order_items AS oi ON oi.order_id = o.order_id
 GROUP BY c.segment
 ORDER BY revenue DESC
 """.strip()
+    if "region" in normalized and "revenue" in normalized:
+        return """
+SELECT
+    c.region,
+    ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue
+FROM customers AS c
+JOIN orders AS o ON o.customer_id = c.customer_id
+JOIN order_items AS oi ON oi.order_id = o.order_id
+GROUP BY c.region
+ORDER BY revenue DESC
+""".strip()
 
     raise ValueError(
-        "Unsupported question. Try: 'Which customer segment has the highest revenue?'"
+        "Unsupported question. Try: 'Which customer segment has the highest revenue?' "
+        "or 'What is revenue by region?'"
     )
 
 
@@ -76,8 +88,14 @@ def answer_question(question: str, db_path: str | Path, limit: int = 5) -> Analy
         answer = "No matching revenue records were found in the demo sales mart."
     else:
         top = rows[0]
+        if "segment" in top:
+            dimension_label = "customer segment"
+            dimension_value = top["segment"]
+        else:
+            dimension_label = "region"
+            dimension_value = top["region"]
         answer = (
-            f"{top['segment']} is the highest-revenue customer segment "
+            f"{dimension_value} is the highest-revenue {dimension_label} "
             f"with ${top['revenue']:,.2f} in the demo sales mart."
         )
 

@@ -10,3 +10,5 @@ def test_cli_lists_supported_sample_questions(capsys):
     assert "Supported sample questions" in captured.out
     assert "segment_revenue" in captured.out
     assert "Which customer segment has the highest revenue?" in captured.out
+    assert "region_revenue" in captured.out
+    assert "What is revenue by region?" in captured.out

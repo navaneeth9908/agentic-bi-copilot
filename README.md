@@ -20,9 +20,29 @@ The first milestone is a deterministic offline analytics path:
 uv run --group dev pytest
 uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
+uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe SQL, returns ranked segment revenue, and explains the top segment.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, returns ranked segment or region revenue, and explains the top dimension.
+
+## CLI example: revenue by region
+
+```bash
+uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
+```
+
+Expected deterministic rows:
+
+```text
+region | revenue
+--- | ---
+North | 4200.0
+West | 3000.0
+South | 1500.0
+East | 800.0
+```
+
+The generated SQL groups by `c.region`, orders by revenue descending, and passes the same read-only safety gate used by the segment revenue question.
 
 ## One-week build roadmap
 

@@ -16,6 +16,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Add more business questions: revenue by region, repeat customers, product mix, and quarter-over-quarter trends.
 - Strengthen SQL safety validation.
 - Add examples with expected output.
+- Session 02 progress: shipped the safe `region_revenue` question with deterministic tests, CLI listing coverage, and README example output.
 
 ## Day 3 — RAG-backed metric definitions
 

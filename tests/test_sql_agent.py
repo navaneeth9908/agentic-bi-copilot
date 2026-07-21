@@ -28,6 +28,30 @@ def test_answer_question_identifies_top_revenue_segment(tmp_path: Path):
     assert "5,000.00" in result.answer
 
 
+def test_answer_question_identifies_top_revenue_region(tmp_path: Path):
+    db_path = build_demo_db(tmp_path / "sales_mart.sqlite")
+
+    result = answer_question(
+        "What is revenue by region?",
+        db_path=db_path,
+        limit=4,
+    )
+
+    assert "GROUP BY c.region" in result.sql
+    assert is_safe_select(result.sql)
+    assert result.rows[0]["region"] == "North"
+    assert result.rows[0]["revenue"] == 4200.0
+    assert result.rows == [
+        {"region": "North", "revenue": 4200.0},
+        {"region": "West", "revenue": 3000.0},
+        {"region": "South", "revenue": 1500.0},
+        {"region": "East", "revenue": 800.0},
+    ]
+    assert "North" in result.answer
+    assert "region" in result.answer
+    assert "4,200.00" in result.answer
+
+
 def test_is_safe_select_rejects_mutating_sql():
     assert is_safe_select("SELECT * FROM customers")
     assert not is_safe_select("DROP TABLE customers")

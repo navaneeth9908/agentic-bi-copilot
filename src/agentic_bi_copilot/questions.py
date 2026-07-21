@@ -21,6 +21,11 @@ SAMPLE_QUESTIONS: tuple[SampleQuestion, ...] = (
         question="Which customer segment has the highest revenue?",
         category="Revenue analytics",
     ),
+    SampleQuestion(
+        id="region_revenue",
+        question="What is revenue by region?",
+        category="Revenue analytics",
+    ),
 )
 
 

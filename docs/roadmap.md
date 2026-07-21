@@ -46,6 +46,4 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Add Dockerfile, GitHub Actions CI, and final usage docs.
 - Run full verification and polish final portfolio narrative.
 
-## Commit rules
 
-Each scheduled session should produce one coherent improvement, run focused verification, commit only real changes, and push to `main` with Sai's GitHub-associated author identity.

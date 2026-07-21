@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+
+# Local data artifacts
+examples/*.sqlite
+examples/*.db
+*.sqlite
+*.db
+
+# Secrets
+.env
+.env.*
+!.env.example

@@ -8,6 +8,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Scaffold Python package, tests, CLI, and documentation.
 - Build deterministic sales mart sample data.
 - Add safe SQL generation for the first executive business question.
+- Add a discoverable sample-question registry and CLI listing command.
 - Verify with pytest and CLI smoke output.
 
 ## Day 2 — Broader NL2SQL coverage

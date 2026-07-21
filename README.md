@@ -18,10 +18,11 @@ The first milestone is a deterministic offline analytics path:
 
 ```bash
 uv run --group dev pytest
+uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
 ```
 
-Expected behavior: the copilot builds a local demo sales mart, generates safe SQL, returns ranked segment revenue, and explains the top segment.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe SQL, returns ranked segment revenue, and explains the top segment.
 
 ## One-week build roadmap
 
@@ -48,6 +49,7 @@ Question router -> Metric/RAG context -> SQL generator -> SQL safety validator
 src/agentic_bi_copilot/   Python package
   data.py                 Deterministic demo sales mart builder
   sql_agent.py            Safe NL2SQL and answer composition path
+  questions.py            Supported sample-question registry
   cli.py                  Local command-line smoke path
 tests/                    Regression tests
 docs/                     Roadmap and architecture notes

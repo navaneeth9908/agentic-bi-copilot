@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from agentic_bi_copilot.data import build_demo_db
+from agentic_bi_copilot.questions import list_sample_questions
 from agentic_bi_copilot.sql_agent import answer_question
 
 DEFAULT_DB_PATH = Path("examples") / "sales_mart.sqlite"
@@ -21,9 +22,16 @@ def _format_rows(rows: list[dict[str, object]]) -> str:
     return "\n".join(lines)
 
 
+def _format_sample_questions() -> str:
+    lines = ["Supported sample questions:"]
+    for sample in list_sample_questions():
+        lines.append(f"- {sample.id} [{sample.category}]: {sample.question}")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Ask the local BI copilot a business question.")
-    parser.add_argument("question", help="Natural-language business question")
+    parser.add_argument("question", nargs="?", help="Natural-language business question")
     parser.add_argument(
         "--db-path",
         type=Path,
@@ -31,7 +39,19 @@ def main(argv: list[str] | None = None) -> int:
         help="SQLite database path. If missing, a deterministic demo database is created.",
     )
     parser.add_argument("--limit", type=int, default=5, help="Maximum result rows to display")
+    parser.add_argument(
+        "--list-questions",
+        action="store_true",
+        help="List supported sample questions and exit",
+    )
     args = parser.parse_args(argv)
+
+    if args.list_questions:
+        print(_format_sample_questions())
+        return 0
+
+    if not args.question:
+        parser.error("the following arguments are required: question")
 
     if not args.db_path.exists():
         build_demo_db(args.db_path)

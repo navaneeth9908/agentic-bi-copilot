@@ -75,6 +75,49 @@ def test_answer_question_calculates_repeat_customer_rate(tmp_path: Path):
     assert "repeat customer rate" in result.answer
 
 
+def test_answer_question_calculates_product_category_mix(tmp_path: Path):
+    db_path = build_demo_db(tmp_path / "sales_mart.sqlite")
+
+    result = answer_question(
+        "What is product category mix by revenue?",
+        db_path=db_path,
+        limit=4,
+    )
+
+    assert "GROUP BY p.category" in result.sql
+    assert "revenue_share_pct" in result.sql
+    assert is_safe_select(result.sql)
+    assert result.rows == [
+        {
+            "category": "Data Engineering",
+            "revenue": 3250.0,
+            "units_sold": 5,
+            "revenue_share_pct": 34.21,
+        },
+        {
+            "category": "Software",
+            "revenue": 3000.0,
+            "units_sold": 3,
+            "revenue_share_pct": 31.58,
+        },
+        {
+            "category": "AI",
+            "revenue": 1800.0,
+            "units_sold": 3,
+            "revenue_share_pct": 18.95,
+        },
+        {
+            "category": "Services",
+            "revenue": 1450.0,
+            "units_sold": 8,
+            "revenue_share_pct": 15.26,
+        },
+    ]
+    assert "Data Engineering" in result.answer
+    assert "34.21%" in result.answer
+    assert "product/category mix" in result.answer
+
+
 def test_is_safe_select_rejects_mutating_sql():
     assert is_safe_select("SELECT * FROM customers")
     assert not is_safe_select("DROP TABLE customers")

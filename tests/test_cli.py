@@ -14,3 +14,5 @@ def test_cli_lists_supported_sample_questions(capsys):
     assert "What is revenue by region?" in captured.out
     assert "repeat_customer_rate" in captured.out
     assert "What is the repeat customer rate?" in captured.out
+    assert "product_category_mix" in captured.out
+    assert "What is product category mix by revenue?" in captured.out

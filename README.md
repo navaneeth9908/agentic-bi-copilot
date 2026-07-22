@@ -22,9 +22,10 @@ uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
 uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
 uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --limit 1
+uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, returns ranked segment or region revenue, calculates a repeat-customer KPI, and explains the top dimension or retention metric.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, and explains the top dimension, retention metric, or merchandising mix signal.
 
 ## CLI example: revenue by region
 
@@ -60,6 +61,25 @@ total_customers | repeat_customers | repeat_customer_rate
 ```
 
 The metric treats customers with more than one order as repeat customers, so the offline sales mart reports 2 repeat customers out of 6 total customers, or a 33.33% repeat-customer rate.
+
+## CLI example: product/category mix
+
+```bash
+uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
+```
+
+Expected deterministic rows:
+
+```text
+category | revenue | units_sold | revenue_share_pct
+--- | --- | --- | ---
+Data Engineering | 3250.0 | 5 | 34.21
+Software | 3000.0 | 3 | 31.58
+AI | 1800.0 | 3 | 18.95
+Services | 1450.0 | 8 | 15.26
+```
+
+The generated SQL groups by `p.category`, computes each category's share of total demo revenue, orders by revenue descending, and keeps the same safe read-only execution path as the other offline analytics questions.
 
 ## One-week build roadmap
 

@@ -18,6 +18,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Add examples with expected output.
 - Session 02 progress: shipped the safe `region_revenue` question with deterministic tests, CLI listing coverage, and README example output.
 - Session 03 progress: added `repeat_customer_rate` retention analytics with a safe aggregate SQL path, registry/CLI coverage, and README example output.
+- Session 04 progress: added `product_category_mix` analytics with category revenue share, units sold, deterministic tests, CLI listing coverage, and README example output.
 
 ## Day 3 — RAG-backed metric definitions
 

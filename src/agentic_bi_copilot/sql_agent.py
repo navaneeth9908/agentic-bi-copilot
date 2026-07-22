@@ -25,6 +25,27 @@ class AnalysisResult:
 def generate_sql(question: str) -> str:
     """Generate a constrained SQL query for supported business questions."""
     normalized = question.lower()
+    if "category" in normalized and "revenue" in normalized and (
+        "product" in normalized or "mix" in normalized
+    ):
+        return """
+SELECT
+    p.category,
+    ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue,
+    SUM(oi.quantity) AS units_sold,
+    ROUND(
+        100.0 * SUM(oi.quantity * oi.unit_price) / revenue_totals.total_revenue,
+        2
+    ) AS revenue_share_pct
+FROM order_items AS oi
+JOIN products AS p ON p.product_id = oi.product_id
+CROSS JOIN (
+    SELECT SUM(quantity * unit_price) AS total_revenue
+    FROM order_items
+) AS revenue_totals
+GROUP BY p.category, revenue_totals.total_revenue
+ORDER BY revenue DESC, p.category
+""".strip()
     if "segment" in normalized and "revenue" in normalized:
         return """
 SELECT
@@ -68,7 +89,8 @@ FROM (
 
     raise ValueError(
         "Unsupported question. Try: 'Which customer segment has the highest revenue?', "
-        "'What is revenue by region?', or 'What is the repeat customer rate?'"
+        "'What is revenue by region?', 'What is the repeat customer rate?', or "
+        "'What is product category mix by revenue?'"
     )
 
 
@@ -113,6 +135,12 @@ def answer_question(question: str, db_path: str | Path, limit: int = 5) -> Analy
             answer = (
                 f"{repeat_customers} of {total_customers} customers are repeat customers, "
                 f"a {repeat_rate:.2f}% repeat customer rate in the demo sales mart."
+            )
+        elif "revenue_share_pct" in top:
+            answer = (
+                f"{top['category']} leads the product/category mix with "
+                f"${top['revenue']:,.2f}, {top['revenue_share_pct']:.2f}% of revenue, "
+                f"and {int(top['units_sold'])} units sold in the demo sales mart."
             )
         else:
             if "segment" in top:

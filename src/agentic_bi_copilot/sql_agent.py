@@ -47,10 +47,28 @@ JOIN order_items AS oi ON oi.order_id = o.order_id
 GROUP BY c.region
 ORDER BY revenue DESC
 """.strip()
+    if "repeat" in normalized and "customer" in normalized:
+        return """
+SELECT
+    COUNT(*) AS total_customers,
+    SUM(CASE WHEN order_count > 1 THEN 1 ELSE 0 END) AS repeat_customers,
+    ROUND(
+        100.0 * SUM(CASE WHEN order_count > 1 THEN 1 ELSE 0 END) / COUNT(*),
+        2
+    ) AS repeat_customer_rate
+FROM (
+    SELECT
+        c.customer_id,
+        COUNT(o.order_id) AS order_count
+    FROM customers AS c
+    LEFT JOIN orders AS o ON o.customer_id = c.customer_id
+    GROUP BY c.customer_id
+) AS customer_order_counts
+""".strip()
 
     raise ValueError(
-        "Unsupported question. Try: 'Which customer segment has the highest revenue?' "
-        "or 'What is revenue by region?'"
+        "Unsupported question. Try: 'Which customer segment has the highest revenue?', "
+        "'What is revenue by region?', or 'What is the repeat customer rate?'"
     )
 
 
@@ -88,15 +106,24 @@ def answer_question(question: str, db_path: str | Path, limit: int = 5) -> Analy
         answer = "No matching revenue records were found in the demo sales mart."
     else:
         top = rows[0]
-        if "segment" in top:
-            dimension_label = "customer segment"
-            dimension_value = top["segment"]
+        if "repeat_customer_rate" in top:
+            total_customers = int(top["total_customers"])
+            repeat_customers = int(top["repeat_customers"])
+            repeat_rate = float(top["repeat_customer_rate"])
+            answer = (
+                f"{repeat_customers} of {total_customers} customers are repeat customers, "
+                f"a {repeat_rate:.2f}% repeat customer rate in the demo sales mart."
+            )
         else:
-            dimension_label = "region"
-            dimension_value = top["region"]
-        answer = (
-            f"{dimension_value} is the highest-revenue {dimension_label} "
-            f"with ${top['revenue']:,.2f} in the demo sales mart."
-        )
+            if "segment" in top:
+                dimension_label = "customer segment"
+                dimension_value = top["segment"]
+            else:
+                dimension_label = "region"
+                dimension_value = top["region"]
+            answer = (
+                f"{dimension_value} is the highest-revenue {dimension_label} "
+                f"with ${top['revenue']:,.2f} in the demo sales mart."
+            )
 
     return AnalysisResult(question=question, sql=sql, rows=rows, answer=answer)

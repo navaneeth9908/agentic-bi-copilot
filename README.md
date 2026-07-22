@@ -21,9 +21,10 @@ uv run --group dev pytest
 uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
 uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
+uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --limit 1
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, returns ranked segment or region revenue, and explains the top dimension.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, returns ranked segment or region revenue, calculates a repeat-customer KPI, and explains the top dimension or retention metric.
 
 ## CLI example: revenue by region
 
@@ -43,6 +44,22 @@ East | 800.0
 ```
 
 The generated SQL groups by `c.region`, orders by revenue descending, and passes the same read-only safety gate used by the segment revenue question.
+
+## CLI example: repeat customer rate
+
+```bash
+uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --limit 1
+```
+
+Expected deterministic rows:
+
+```text
+total_customers | repeat_customers | repeat_customer_rate
+--- | --- | ---
+6 | 2 | 33.33
+```
+
+The metric treats customers with more than one order as repeat customers, so the offline sales mart reports 2 repeat customers out of 6 total customers, or a 33.33% repeat-customer rate.
 
 ## One-week build roadmap
 

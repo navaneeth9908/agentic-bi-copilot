@@ -17,3 +17,11 @@ def test_sample_question_registry_includes_region_revenue_question():
     assert questions["region_revenue"].question == "What is revenue by region?"
     assert questions["region_revenue"].category == "Revenue analytics"
     assert questions["region_revenue"].supported is True
+
+
+def test_sample_question_registry_includes_repeat_customer_rate_question():
+    questions = {sample.id: sample for sample in list_sample_questions()}
+
+    assert questions["repeat_customer_rate"].question == "What is the repeat customer rate?"
+    assert questions["repeat_customer_rate"].category == "Retention analytics"
+    assert questions["repeat_customer_rate"].supported is True

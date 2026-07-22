@@ -17,6 +17,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Strengthen SQL safety validation.
 - Add examples with expected output.
 - Session 02 progress: shipped the safe `region_revenue` question with deterministic tests, CLI listing coverage, and README example output.
+- Session 03 progress: added `repeat_customer_rate` retention analytics with a safe aggregate SQL path, registry/CLI coverage, and README example output.
 
 ## Day 3 — RAG-backed metric definitions
 

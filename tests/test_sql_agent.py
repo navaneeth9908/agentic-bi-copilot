@@ -52,6 +52,29 @@ def test_answer_question_identifies_top_revenue_region(tmp_path: Path):
     assert "4,200.00" in result.answer
 
 
+def test_answer_question_calculates_repeat_customer_rate(tmp_path: Path):
+    db_path = build_demo_db(tmp_path / "sales_mart.sqlite")
+
+    result = answer_question(
+        "What is the repeat customer rate?",
+        db_path=db_path,
+        limit=1,
+    )
+
+    assert "order_count > 1" in result.sql
+    assert is_safe_select(result.sql)
+    assert result.rows == [
+        {
+            "total_customers": 6,
+            "repeat_customers": 2,
+            "repeat_customer_rate": 33.33,
+        }
+    ]
+    assert "2 of 6 customers" in result.answer
+    assert "33.33%" in result.answer
+    assert "repeat customer rate" in result.answer
+
+
 def test_is_safe_select_rejects_mutating_sql():
     assert is_safe_select("SELECT * FROM customers")
     assert not is_safe_select("DROP TABLE customers")

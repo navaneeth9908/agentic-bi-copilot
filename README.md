@@ -14,7 +14,7 @@ Modern AI engineering roles increasingly expect more than a chatbot demo. This r
 
 ## Current milestone
 
-The first milestone is a deterministic offline analytics path:
+The first milestone is a deterministic offline analytics path with grounded metric-definition context:
 
 ```bash
 uv run --group dev pytest
@@ -25,7 +25,11 @@ uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --li
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, and explains the top dimension, retention metric, or merchandising mix signal.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, and cites the metric context used in each answer.
+
+## Metric glossary / RAG context
+
+Metric definitions live in [`docs/metric_glossary.md`](docs/metric_glossary.md) and are mirrored by a deterministic retriever in `src/agentic_bi_copilot/metrics.py`. The offline answer path attaches matching `MetricDefinition` cards to `AnalysisResult.metric_context` and cites the retrieved definition in the CLI answer, providing a small RAG-style grounding layer for terms like revenue, repeat customer rate, active customer, product category mix, and average order value.
 
 ## CLI example: revenue by region
 
@@ -105,10 +109,11 @@ Question router -> Metric/RAG context -> SQL generator -> SQL safety validator
 ```text
 src/agentic_bi_copilot/   Python package
   data.py                 Deterministic demo sales mart builder
-  sql_agent.py            Safe NL2SQL and answer composition path
+  sql_agent.py            Safe NL2SQL, metric retrieval, and answer composition path
+  metrics.py              Curated BI metric glossary retriever
   questions.py            Supported sample-question registry
   cli.py                  Local command-line smoke path
 tests/                    Regression tests
-docs/                     Roadmap and architecture notes
+docs/                     Roadmap, metric glossary, and architecture notes
 examples/                 Local generated demo databases, ignored by git
 ```

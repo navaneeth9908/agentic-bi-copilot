@@ -75,6 +75,22 @@ def test_answer_question_calculates_repeat_customer_rate(tmp_path: Path):
     assert "repeat customer rate" in result.answer
 
 
+def test_answer_question_cites_retrieved_metric_definition(tmp_path: Path):
+    db_path = build_demo_db(tmp_path / "sales_mart.sqlite")
+
+    result = answer_question(
+        "What is the repeat customer rate?",
+        db_path=db_path,
+        limit=1,
+    )
+
+    assert result.metric_context[0].term == "Repeat customer rate"
+    assert "Metric definition: Repeat customer rate" in result.answer
+    assert "more than one order" in result.answer
+    assert "docs/metric_glossary.md#repeat-customer-rate" in result.answer
+
+
+
 def test_answer_question_calculates_product_category_mix(tmp_path: Path):
     db_path = build_demo_db(tmp_path / "sales_mart.sqlite")
 

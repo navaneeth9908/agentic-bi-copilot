@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from agentic_bi_copilot.metrics import MetricDefinition, retrieve_metric_definitions
+
 MUTATING_SQL_PATTERN = re.compile(
     r"\b(insert|update|delete|drop|alter|create|replace|truncate|attach|detach|pragma|vacuum)\b",
     re.IGNORECASE,
@@ -20,6 +22,7 @@ class AnalysisResult:
     sql: str
     rows: list[dict[str, Any]]
     answer: str
+    metric_context: tuple[MetricDefinition, ...] = ()
 
 
 def generate_sql(question: str) -> str:
@@ -120,10 +123,20 @@ def _execute_select(db_path: str | Path, sql: str, limit: int) -> list[dict[str,
     return [dict(row) for row in rows]
 
 
+def _format_metric_context(metric_context: tuple[MetricDefinition, ...]) -> str:
+    citations = "; ".join(
+        f"{definition.term}: {definition.definition} "
+        f"Formula: {definition.formula}. Source: {definition.source}"
+        for definition in metric_context
+    )
+    return f"Metric definition: {citations}"
+
+
 def answer_question(question: str, db_path: str | Path, limit: int = 5) -> AnalysisResult:
     """Generate SQL, execute it, and compose a concise executive answer."""
     sql = generate_sql(question)
     rows = _execute_select(db_path, sql, limit=limit)
+    metric_context = retrieve_metric_definitions(question, limit=2)
     if not rows:
         answer = "No matching revenue records were found in the demo sales mart."
     else:
@@ -154,4 +167,13 @@ def answer_question(question: str, db_path: str | Path, limit: int = 5) -> Analy
                 f"with ${top['revenue']:,.2f} in the demo sales mart."
             )
 
-    return AnalysisResult(question=question, sql=sql, rows=rows, answer=answer)
+    if metric_context:
+        answer = f"{answer} {_format_metric_context(metric_context)}"
+
+    return AnalysisResult(
+        question=question,
+        sql=sql,
+        rows=rows,
+        answer=answer,
+        metric_context=metric_context,
+    )

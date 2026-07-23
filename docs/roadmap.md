@@ -23,8 +23,9 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 ## Day 3 — RAG-backed metric definitions
 
 - Add a small metric glossary and document loader.
-- Retrieve definitions for terms like net revenue, repeat purchase, active customer, and average order value.
+- Retrieve definitions for terms like revenue, repeat purchase, active customer, and average order value.
 - Cite metric definitions in answer explanations.
+- Session 05 progress: added a deterministic metric glossary/RAG context layer, answer citations, glossary documentation, and regression coverage for revenue, repeat customer rate, active customer, product category mix, and average order value definitions.
 
 ## Day 4 — Evaluation harness
 

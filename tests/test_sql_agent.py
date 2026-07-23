@@ -90,6 +90,22 @@ def test_answer_question_cites_retrieved_metric_definition(tmp_path: Path):
     assert "docs/metric_glossary.md#repeat-customer-rate" in result.answer
 
 
+def test_answer_question_includes_metric_source_snippet(tmp_path: Path):
+    db_path = build_demo_db(tmp_path / "sales_mart.sqlite")
+
+    result = answer_question(
+        "What is the repeat customer rate?",
+        db_path=db_path,
+        limit=1,
+    )
+
+    assert "Metric definition: Repeat customer rate [docs/metric_glossary.md#repeat-customer-rate]" in result.answer
+    assert "Source snippet:" in result.answer
+    assert "- Definition: The share of unique customers with more than one order" in result.answer
+    assert "- Formula: repeat_customers / total_customers * 100" in result.answer
+    assert "- Grain: customer" in result.answer
+
+
 
 def test_answer_question_calculates_product_category_mix(tmp_path: Path):
     db_path = build_demo_db(tmp_path / "sales_mart.sqlite")

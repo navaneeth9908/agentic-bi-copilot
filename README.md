@@ -25,11 +25,11 @@ uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --li
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, and cites the metric context used in each answer.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, and cites the metric context used in each answer with source snippets.
 
 ## Metric glossary / RAG context
 
-Metric definitions live in [`docs/metric_glossary.md`](docs/metric_glossary.md) and are mirrored by a deterministic retriever in `src/agentic_bi_copilot/metrics.py`. The offline answer path attaches matching `MetricDefinition` cards to `AnalysisResult.metric_context` and cites the retrieved definition in the CLI answer, providing a small RAG-style grounding layer for terms like revenue, repeat customer rate, active customer, product category mix, and average order value.
+Metric definitions live in [`docs/metric_glossary.md`](docs/metric_glossary.md) and are mirrored by a deterministic retriever in `src/agentic_bi_copilot/metrics.py`. The offline answer path attaches matching `MetricDefinition` cards to `AnalysisResult.metric_context` and cites each retrieved definition with a stable glossary anchor plus a source snippet containing definition, formula, and grain. This provides a small RAG-style grounding layer for terms like revenue, repeat customer rate, active customer, product category mix, and average order value.
 
 ## CLI example: revenue by region
 

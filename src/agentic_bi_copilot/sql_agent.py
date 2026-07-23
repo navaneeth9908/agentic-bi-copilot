@@ -124,12 +124,14 @@ def _execute_select(db_path: str | Path, sql: str, limit: int) -> list[dict[str,
 
 
 def _format_metric_context(metric_context: tuple[MetricDefinition, ...]) -> str:
-    citations = "; ".join(
-        f"{definition.term}: {definition.definition} "
-        f"Formula: {definition.formula}. Source: {definition.source}"
-        for definition in metric_context
-    )
-    return f"Metric definition: {citations}"
+    citations = []
+    for definition in metric_context:
+        citations.append(
+            f"Metric definition: {definition.term} [{definition.source}]\n"
+            "Source snippet:\n"
+            f"{definition.source_snippet}"
+        )
+    return "\n\n".join(citations)
 
 
 def answer_question(question: str, db_path: str | Path, limit: int = 5) -> AnalysisResult:

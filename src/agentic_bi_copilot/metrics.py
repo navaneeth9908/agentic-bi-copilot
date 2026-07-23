@@ -19,6 +19,7 @@ class MetricDefinition:
     formula: str
     grain: str
     source: str
+    source_snippet: str
 
 
 def load_metric_glossary(glossary_path: str | Path | None = None) -> tuple[MetricDefinition, ...]:
@@ -90,6 +91,11 @@ def _build_metric_definition(term: str, fields: dict[str, str]) -> MetricDefinit
         formula=fields["formula"],
         grain=fields["grain"],
         source=fields.get("source", f"docs/metric_glossary.md#{_slugify(term)}"),
+        source_snippet=(
+            f"- Definition: {fields['definition']}\n"
+            f"- Formula: {fields['formula']}\n"
+            f"- Grain: {fields['grain']}"
+        ),
     )
 
 

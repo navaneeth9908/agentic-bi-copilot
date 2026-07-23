@@ -26,7 +26,6 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Retrieve definitions for terms like revenue, repeat purchase, active customer, and average order value.
 - Cite metric definitions in answer explanations.
 - Session 05 progress: added a deterministic metric glossary/RAG context layer, answer citations, glossary documentation, and regression coverage for revenue, repeat customer rate, active customer, product category mix, and average order value definitions.
-- Session 06 progress: connected retrieved metric cards to answer explanations with stable glossary citations and source snippets covering definition, formula, and analysis grain.
 - Session 06 progress: connected retrieved metric definitions to answer explanations with stable glossary citation anchors and definition/formula/grain source snippets in the deterministic CLI path.
 
 ## Day 4 — Evaluation harness

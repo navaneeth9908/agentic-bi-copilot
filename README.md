@@ -26,7 +26,7 @@ uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --li
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, and runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, and answer text.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, and runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting.
 
 ## Metric glossary / RAG context
 
@@ -42,13 +42,22 @@ Expected deterministic report:
 
 ```text
 Evaluation report: 4/4 passed
+Quality summary: PASS (100.0% pass rate, 0 failing cases)
 - segment_revenue: PASS
 - region_revenue: PASS
 - repeat_customer_rate: PASS
 - product_category_mix: PASS
 ```
 
-The evaluation dataset lives in `evals/supported_questions.json` and covers every supported sample question. The runner in `src/agentic_bi_copilot/evaluation.py` builds the demo mart when needed, executes the same safe offline answer path, and scores SQL safety, expected SQL fragments, deterministic rows, metric context, and answer text fragments.
+The evaluation dataset lives in `evals/supported_questions.json` and covers every supported sample question. The runner in `src/agentic_bi_copilot/evaluation.py` builds the demo mart when needed, executes the same safe offline answer path, and scores SQL safety, expected SQL fragments, deterministic rows, metric context, and answer text fragments. The formatted report includes a quality status line with pass rate and failing case IDs so CI logs and portfolio demos show a quick go/no-go summary before per-case details.
+
+## Evaluation quality gates and failure handling
+
+See [`docs/evaluation_quality.md`](docs/evaluation_quality.md) for the evaluation report contract. In short:
+
+- `PASS` means every deterministic case executed successfully and all scoring checks passed.
+- `FAIL` means at least one case either failed execution or missed an expected SQL, row, answer, or metric-context check.
+- Unsupported or broken questions are captured as failed `EvaluationCaseResult` records instead of crashing the full suite, preserving the case ID, question, failed execution check, and exception message for debugging.
 
 ## CLI example: revenue by region
 
@@ -135,6 +144,6 @@ src/agentic_bi_copilot/   Python package
   cli.py                  Local command-line smoke path
 evals/                    Supported-question evaluation datasets
 tests/                    Regression tests
-docs/                     Roadmap, metric glossary, and architecture notes
+docs/                     Roadmap, metric glossary, evaluation quality, and architecture notes
 examples/                 Local generated demo databases, ignored by git
 ```

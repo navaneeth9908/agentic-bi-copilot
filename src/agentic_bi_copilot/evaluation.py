@@ -63,6 +63,20 @@ class EvaluationReport:
     def failed(self) -> int:
         return self.total - self.passed
 
+    @property
+    def pass_rate_pct(self) -> float:
+        if self.total == 0:
+            return 0.0
+        return round(100.0 * self.passed / self.total, 1)
+
+    @property
+    def quality_status(self) -> str:
+        return "PASS" if self.failed == 0 else "FAIL"
+
+    @property
+    def failing_case_ids(self) -> tuple[str, ...]:
+        return tuple(result.case_id for result in self.results if not result.passed)
+
 
 def load_eval_cases(dataset_path: str | Path | None = None) -> tuple[EvaluationCase, ...]:
     """Load deterministic evaluation cases from the repository dataset."""
@@ -103,7 +117,13 @@ def run_eval_suite(
 def format_eval_report(report: EvaluationReport) -> str:
     """Format evaluation results for CLI smoke runs and portfolio logs."""
 
-    lines = [f"Evaluation report: {report.passed}/{report.total} passed"]
+    lines = [
+        f"Evaluation report: {report.passed}/{report.total} passed",
+        (
+            f"Quality summary: {report.quality_status} "
+            f"({report.pass_rate_pct:.1f}% pass rate, {_format_failing_case_summary(report)})"
+        ),
+    ]
     for result in report.results:
         status = "PASS" if result.passed else "FAIL"
         lines.append(f"- {result.case_id}: {status}")
@@ -112,11 +132,33 @@ def format_eval_report(report: EvaluationReport) -> str:
     return "\n".join(lines)
 
 
+def _format_failing_case_summary(report: EvaluationReport) -> str:
+    failing_case_ids = report.failing_case_ids
+    if not failing_case_ids:
+        return "0 failing cases"
+    if len(failing_case_ids) == 1:
+        return f"1 failing case: {failing_case_ids[0]}"
+    return f"{len(failing_case_ids)} failing cases: {', '.join(failing_case_ids)}"
+
+
 def _evaluate_case(case: EvaluationCase, db_path: Path) -> EvaluationCaseResult:
-    result = answer_question(case.question, db_path=db_path, limit=case.limit)
+    try:
+        result = answer_question(case.question, db_path=db_path, limit=case.limit)
+    except Exception as exc:
+        return EvaluationCaseResult(
+            case_id=case.id,
+            question=case.question,
+            checks={"execution": False},
+            failures=(f"execution failed: {exc}",),
+            sql="",
+            rows=(),
+            answer="",
+        )
+
     rows = tuple(result.rows)
     metric_terms = tuple(definition.term for definition in result.metric_context)
     checks = {
+        "execution": True,
         "sql_safe": is_safe_select(result.sql),
         "sql_contains": all(fragment in result.sql for fragment in case.expected_sql_fragments),
         "expected_rows": _rows_start_with(rows, case.expected_rows),

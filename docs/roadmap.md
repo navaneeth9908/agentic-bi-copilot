@@ -34,6 +34,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Track pass/fail results in a simple evaluation report.
 - Document known limitations and future eval improvements.
 - Session 07 progress: added a deterministic supported-question evaluation dataset and CLI runner that checks SQL safety, expected SQL fragments, deterministic rows, metric context, and answer text for every offline sample question.
+- Session 08 progress: added evaluation quality-summary reporting, graceful failed-case capture for unsupported or broken questions, and documentation for the eval quality-gate contract.
 
 ## Day 5 — API layer
 

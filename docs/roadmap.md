@@ -33,6 +33,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Add deterministic test cases for question routing, SQL generation, and answer quality.
 - Track pass/fail results in a simple evaluation report.
 - Document known limitations and future eval improvements.
+- Session 07 progress: added a deterministic supported-question evaluation dataset and CLI runner that checks SQL safety, expected SQL fragments, deterministic rows, metric context, and answer text for every offline sample question.
 
 ## Day 5 — API layer
 

@@ -1,0 +1,108 @@
+{
+  "dataset": "supported_questions_v1",
+  "description": "Deterministic evaluation set for supported offline BI copilot questions.",
+  "cases": [
+    {
+      "id": "segment_revenue",
+      "question": "Which customer segment has the highest revenue?",
+      "limit": 3,
+      "expected_sql_fragments": [
+        "GROUP BY c.segment",
+        "ORDER BY revenue DESC"
+      ],
+      "expected_rows": [
+        {"segment": "Enterprise", "revenue": 5000.0}
+      ],
+      "expected_answer_fragments": [
+        "Enterprise",
+        "$5,000.00",
+        "Metric definition: Revenue"
+      ],
+      "expected_metric_terms": ["Revenue"]
+    },
+    {
+      "id": "region_revenue",
+      "question": "What is revenue by region?",
+      "limit": 4,
+      "expected_sql_fragments": [
+        "GROUP BY c.region",
+        "ORDER BY revenue DESC"
+      ],
+      "expected_rows": [
+        {"region": "North", "revenue": 4200.0},
+        {"region": "West", "revenue": 3000.0},
+        {"region": "South", "revenue": 1500.0},
+        {"region": "East", "revenue": 800.0}
+      ],
+      "expected_answer_fragments": [
+        "North",
+        "$4,200.00",
+        "Metric definition: Revenue"
+      ],
+      "expected_metric_terms": ["Revenue"]
+    },
+    {
+      "id": "repeat_customer_rate",
+      "question": "What is the repeat customer rate?",
+      "limit": 1,
+      "expected_sql_fragments": [
+        "order_count > 1",
+        "repeat_customer_rate"
+      ],
+      "expected_rows": [
+        {
+          "total_customers": 6,
+          "repeat_customers": 2,
+          "repeat_customer_rate": 33.33
+        }
+      ],
+      "expected_answer_fragments": [
+        "2 of 6 customers",
+        "33.33%",
+        "Metric definition: Repeat customer rate"
+      ],
+      "expected_metric_terms": ["Repeat customer rate"]
+    },
+    {
+      "id": "product_category_mix",
+      "question": "What is product category mix by revenue?",
+      "limit": 4,
+      "expected_sql_fragments": [
+        "GROUP BY p.category",
+        "revenue_share_pct"
+      ],
+      "expected_rows": [
+        {
+          "category": "Data Engineering",
+          "revenue": 3250.0,
+          "units_sold": 5,
+          "revenue_share_pct": 34.21
+        },
+        {
+          "category": "Software",
+          "revenue": 3000.0,
+          "units_sold": 3,
+          "revenue_share_pct": 31.58
+        },
+        {
+          "category": "AI",
+          "revenue": 1800.0,
+          "units_sold": 3,
+          "revenue_share_pct": 18.95
+        },
+        {
+          "category": "Services",
+          "revenue": 1450.0,
+          "units_sold": 8,
+          "revenue_share_pct": 15.26
+        }
+      ],
+      "expected_answer_fragments": [
+        "Data Engineering",
+        "34.21%",
+        "product/category mix"
+      ],
+      "expected_metric_terms": ["Product category mix", "Revenue"]
+    }
+  ]
+}

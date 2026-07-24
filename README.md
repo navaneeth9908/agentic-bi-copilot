@@ -19,17 +19,36 @@ The first milestone is a deterministic offline analytics path with grounded metr
 ```bash
 uv run --group dev pytest
 uv run python -m agentic_bi_copilot.cli --list-questions
+uv run python -m agentic_bi_copilot.cli --run-evals
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
 uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
 uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --limit 1
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, and cites the metric context used in each answer with source snippets.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, and runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, and answer text.
 
 ## Metric glossary / RAG context
 
 Metric definitions live in [`docs/metric_glossary.md`](docs/metric_glossary.md) and are mirrored by a deterministic retriever in `src/agentic_bi_copilot/metrics.py`. The offline answer path attaches matching `MetricDefinition` cards to `AnalysisResult.metric_context` and cites each retrieved definition with a stable glossary anchor plus a source snippet containing definition, formula, and grain. This provides a small RAG-style grounding layer for terms like revenue, repeat customer rate, active customer, product category mix, and average order value.
+
+## CLI example: evaluation suite
+
+```bash
+uv run python -m agentic_bi_copilot.cli --run-evals
+```
+
+Expected deterministic report:
+
+```text
+Evaluation report: 4/4 passed
+- segment_revenue: PASS
+- region_revenue: PASS
+- repeat_customer_rate: PASS
+- product_category_mix: PASS
+```
+
+The evaluation dataset lives in `evals/supported_questions.json` and covers every supported sample question. The runner in `src/agentic_bi_copilot/evaluation.py` builds the demo mart when needed, executes the same safe offline answer path, and scores SQL safety, expected SQL fragments, deterministic rows, metric context, and answer text fragments.
 
 ## CLI example: revenue by region
 
@@ -112,7 +131,9 @@ src/agentic_bi_copilot/   Python package
   sql_agent.py            Safe NL2SQL, metric retrieval, and answer composition path
   metrics.py              Curated BI metric glossary retriever
   questions.py            Supported sample-question registry
+  evaluation.py           Deterministic eval runner for supported questions
   cli.py                  Local command-line smoke path
+evals/                    Supported-question evaluation datasets
 tests/                    Regression tests
 docs/                     Roadmap, metric glossary, and architecture notes
 examples/                 Local generated demo databases, ignored by git

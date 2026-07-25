@@ -62,13 +62,13 @@ See [`docs/evaluation_quality.md`](docs/evaluation_quality.md) for the evaluatio
 
 ## API example: FastAPI answer flow
 
-The ASGI app is exposed as `agentic_bi_copilot.api:app` for local API demos and any ASGI server. Its deterministic endpoints are:
+The ASGI app is exposed as `agentic_bi_copilot.api:app` for local API demos and any ASGI server. See [`docs/api.md`](docs/api.md) for cURL-ready request/response examples, the unsupported-question error contract, and local smoke-test guidance. Its deterministic endpoints are:
 
 - `GET /health` — readiness payload with service name and supported-question count.
 - `GET /questions` — the sample-question registry used by the CLI.
 - `POST /ask` — request body `{"question": "What is revenue by region?", "limit": 2}` and response with generated SQL, rows, answer text, and cited metric context.
 
-The API path builds the same demo sales mart when its configured SQLite file is missing, then reuses the safe SQL and metric-glossary answer flow covered by the CLI and eval tests.
+The API path builds the same demo sales mart when its configured SQLite file is missing, then reuses the safe SQL and metric-glossary answer flow covered by the CLI and eval tests. The OpenAPI schema includes request/response examples for `/ask`, and unsupported prompts return a structured `400` with supported sample questions instead of an unhandled server error.
 
 ## CLI example: revenue by region
 
@@ -156,6 +156,6 @@ src/agentic_bi_copilot/   Python package
   api.py                  FastAPI health, sample-question, and ask-question endpoints
 evals/                    Supported-question evaluation datasets
 tests/                    Regression tests
-docs/                     Roadmap, metric glossary, evaluation quality, and architecture notes
+docs/                     Roadmap, API contract, metric glossary, evaluation quality, and architecture notes
 examples/                 Local generated demo databases, ignored by git
 ```

@@ -40,6 +40,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 
 - Add FastAPI endpoints for asking questions, listing sample questions, and health checks.
 - Include request/response schemas and API smoke tests.
+- Session 09 progress: added a FastAPI app with `GET /health`, `GET /questions`, and `POST /ask` endpoints backed by the deterministic safe-SQL answer path, Pydantic request/response schemas, API regression tests, and an API smoke path.
 
 ## Day 6 — UI and portfolio polish
 

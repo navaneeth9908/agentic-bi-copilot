@@ -20,13 +20,14 @@ The first milestone is a deterministic offline analytics path with grounded metr
 uv run --group dev pytest
 uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli --run-evals
+uv run --group dev pytest tests/test_api.py -q
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
 uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
 uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --limit 1
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, and runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, and exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints.
 
 ## Metric glossary / RAG context
 
@@ -58,6 +59,16 @@ See [`docs/evaluation_quality.md`](docs/evaluation_quality.md) for the evaluatio
 - `PASS` means every deterministic case executed successfully and all scoring checks passed.
 - `FAIL` means at least one case either failed execution or missed an expected SQL, row, answer, or metric-context check.
 - Unsupported or broken questions are captured as failed `EvaluationCaseResult` records instead of crashing the full suite, preserving the case ID, question, failed execution check, and exception message for debugging.
+
+## API example: FastAPI answer flow
+
+The ASGI app is exposed as `agentic_bi_copilot.api:app` for local API demos and any ASGI server. Its deterministic endpoints are:
+
+- `GET /health` — readiness payload with service name and supported-question count.
+- `GET /questions` — the sample-question registry used by the CLI.
+- `POST /ask` — request body `{"question": "What is revenue by region?", "limit": 2}` and response with generated SQL, rows, answer text, and cited metric context.
+
+The API path builds the same demo sales mart when its configured SQLite file is missing, then reuses the safe SQL and metric-glossary answer flow covered by the CLI and eval tests.
 
 ## CLI example: revenue by region
 
@@ -142,6 +153,7 @@ src/agentic_bi_copilot/   Python package
   questions.py            Supported sample-question registry
   evaluation.py           Deterministic eval runner for supported questions
   cli.py                  Local command-line smoke path
+  api.py                  FastAPI health, sample-question, and ask-question endpoints
 evals/                    Supported-question evaluation datasets
 tests/                    Regression tests
 docs/                     Roadmap, metric glossary, evaluation quality, and architecture notes

@@ -27,3 +27,25 @@ def test_cli_runs_supported_question_evaluations(capsys, tmp_path):
     assert "Evaluation report: 4/4 passed" in captured.out
     assert "segment_revenue: PASS" in captured.out
     assert "product_category_mix: PASS" in captured.out
+
+
+def test_cli_renders_static_demo_html_file(capsys, tmp_path):
+    output_path = tmp_path / "demo.html"
+
+    exit_code = main(
+        [
+            "--render-demo",
+            str(output_path),
+            "--db-path",
+            str(tmp_path / "sales_mart.sqlite"),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    html = output_path.read_text(encoding="utf-8")
+
+    assert exit_code == 0
+    assert f"Wrote demo page: {output_path}" in captured.out
+    assert "Agentic BI Copilot Demo" in html
+    assert "What is revenue by region?" in html
+    assert "GROUP BY c.region" in html

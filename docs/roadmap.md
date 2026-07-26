@@ -48,6 +48,7 @@ Goal: Complete a market-relevant AI engineering portfolio project in one week wi
 - Add a lightweight Streamlit or static UI demo.
 - Improve README screenshots/examples.
 - Add architecture diagram and recruiter-focused feature summary.
+- Session 11 progress: added a self-contained static HTML demo page plus a CLI renderer so the deterministic BI answer path can be shown locally without extra UI dependencies.
 
 ## Day 7 — Production packaging
 

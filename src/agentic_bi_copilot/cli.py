@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from agentic_bi_copilot.data import build_demo_db
+from agentic_bi_copilot.demo import DEFAULT_DEMO_QUESTION, write_demo_html
 from agentic_bi_copilot.evaluation import format_eval_report, run_eval_suite
 from agentic_bi_copilot.questions import list_sample_questions
 from agentic_bi_copilot.sql_agent import answer_question
@@ -50,6 +51,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Run deterministic supported-question evaluation checks and exit",
     )
+    parser.add_argument(
+        "--render-demo",
+        dest="render_demo",
+        type=Path,
+        help="Write a self-contained static HTML demo page and exit",
+    )
     args = parser.parse_args(argv)
 
     if args.list_questions:
@@ -60,6 +67,16 @@ def main(argv: list[str] | None = None) -> int:
         report = run_eval_suite(args.db_path)
         print(format_eval_report(report))
         return 0 if report.failed == 0 else 1
+
+    if args.render_demo:
+        output_path = write_demo_html(
+            args.render_demo,
+            db_path=args.db_path,
+            question=args.question or DEFAULT_DEMO_QUESTION,
+            limit=args.limit,
+        )
+        print(f"Wrote demo page: {output_path}")
+        return 0
 
     if not args.question:
         parser.error("the following arguments are required: question")

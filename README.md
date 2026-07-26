@@ -14,20 +14,21 @@ Modern AI engineering roles increasingly expect more than a chatbot demo. This r
 
 ## Current milestone
 
-The first milestone is a deterministic offline analytics path with grounded metric-definition context:
+The current milestone is a deterministic offline analytics path with grounded metric-definition context, FastAPI endpoints, and a static portfolio demo page:
 
 ```bash
 uv run --group dev pytest
 uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli --run-evals
 uv run --group dev pytest tests/test_api.py -q
+uv run python -m agentic_bi_copilot.cli --render-demo docs/demo.html --db-path examples/demo_page.sqlite --limit 2
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
 uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
 uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --limit 1
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, and exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints, and renders a self-contained `docs/demo.html` page for local portfolio demos without extra UI dependencies.
 
 ## Metric glossary / RAG context
 
@@ -69,6 +70,18 @@ The ASGI app is exposed as `agentic_bi_copilot.api:app` for local API demos and 
 - `POST /ask` — request body `{"question": "What is revenue by region?", "limit": 2}` and response with generated SQL, rows, answer text, and cited metric context.
 
 The API path builds the same demo sales mart when its configured SQLite file is missing, then reuses the safe SQL and metric-glossary answer flow covered by the CLI and eval tests. The OpenAPI schema includes request/response examples for `/ask`, and unsupported prompts return a structured `400` with supported sample questions instead of an unhandled server error.
+
+## Static UI demo
+
+[`docs/demo.html`](docs/demo.html) is a self-contained local portfolio page generated from the same deterministic answer path. It highlights the supported-question menu, safe SQL, result table, metric-context citation, and the CLI/API commands a reviewer can run locally.
+
+Regenerate the demo page after answer-path changes:
+
+```bash
+uv run python -m agentic_bi_copilot.cli --render-demo docs/demo.html --db-path examples/demo_page.sqlite --limit 2
+```
+
+The SQLite file is an ignored local artifact; only the HTML page is intended to be committed.
 
 ## CLI example: revenue by region
 
@@ -154,8 +167,9 @@ src/agentic_bi_copilot/   Python package
   evaluation.py           Deterministic eval runner for supported questions
   cli.py                  Local command-line smoke path
   api.py                  FastAPI health, sample-question, and ask-question endpoints
+  demo.py                 Static HTML portfolio demo renderer
 evals/                    Supported-question evaluation datasets
 tests/                    Regression tests
-docs/                     Roadmap, API contract, metric glossary, evaluation quality, and architecture notes
+docs/                     Roadmap, API contract, static demo, metric glossary, evaluation quality, and architecture notes
 examples/                 Local generated demo databases, ignored by git
 ```

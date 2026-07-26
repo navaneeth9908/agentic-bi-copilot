@@ -12,12 +12,35 @@ Modern AI engineering roles increasingly expect more than a chatbot demo. This r
 - **LLM evaluation discipline** with deterministic regression tests and answer-quality checks.
 - **Production packaging** through FastAPI, Docker, CI, and portfolio-ready documentation.
 
+## Recruiter-facing summary
+
+Agentic BI Copilot is a compact proof that I can turn an ambiguous business question into a governed analytics product, not just a prompt demo. The project shows a reviewer that I can:
+
+- Design an agent-style loop with routing, metric retrieval, SQL generation, SQL safety checks, execution, and answer composition.
+- Ground business language in a curated metric glossary so generated answers cite definitions, formulas, and grains.
+- Back every supported question with deterministic tests, an eval runner, and CLI/API smoke paths that can be re-run locally.
+- Package the same answer path for a command line, FastAPI service, and static HTML portfolio demo.
+
+## Recruiter review path
+
+For a quick technical screen, this repo is designed to be reviewed in minutes rather than inferred from code alone:
+
+| What to review | Command or artifact | What it proves |
+| --- | --- | --- |
+| Supported use cases | `uv run python -m agentic_bi_copilot.cli --list-questions` | The copilot has an explicit question registry instead of accepting every prompt blindly. |
+| Deterministic quality gate | `uv run python -m agentic_bi_copilot.cli --run-evals` | Every supported question is checked for SQL safety, expected rows, answer text, and metric citations. |
+| End-to-end answer path | `uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 2` | Natural language is routed to safe SQL, executed on the demo mart, and returned with grounded BI context. |
+| API contract | `uv run --group dev pytest tests/test_api.py -q` | FastAPI health, question listing, answer responses, OpenAPI examples, and unsupported-question errors are covered. |
+| Local portfolio demo | [`docs/demo.html`](docs/demo.html) | The same deterministic answer path is packaged as a self-contained UI artifact for walkthroughs. |
+
+The narrative for hiring teams: **Agentic BI Copilot is a production-minded AI engineering slice**. It scopes the assistant to supported analytics tasks, grounds business terminology in a metric glossary, validates SQL before execution, exposes repeatable CLI/API/UI surfaces, and measures answer quality with deterministic evals.
+
 ## Current milestone
 
-The current milestone is a deterministic offline analytics path with grounded metric-definition context, FastAPI endpoints, and a static portfolio demo page:
+The current milestone is a deterministic offline analytics path with grounded metric-definition context, FastAPI endpoints, a static portfolio demo page, and recruiter-ready architecture documentation:
 
 ```bash
-uv run --group dev pytest
+uv run --group dev pytest tests/ -q
 uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli --run-evals
 uv run --group dev pytest tests/test_api.py -q
@@ -28,7 +51,7 @@ uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --li
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints, and renders a self-contained `docs/demo.html` page for local portfolio demos without extra UI dependencies.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints, renders a self-contained `docs/demo.html` page with architecture proof points for local portfolio demos without extra UI dependencies, and documents the system architecture in a reviewer-friendly format.
 
 ## Metric glossary / RAG context
 
@@ -73,7 +96,7 @@ The API path builds the same demo sales mart when its configured SQLite file is 
 
 ## Static UI demo
 
-[`docs/demo.html`](docs/demo.html) is a self-contained local portfolio page generated from the same deterministic answer path. It highlights the supported-question menu, safe SQL, result table, metric-context citation, and the CLI/API commands a reviewer can run locally.
+[`docs/demo.html`](docs/demo.html) is a self-contained local portfolio page generated from the same deterministic answer path. It highlights the supported-question menu, safe SQL, result table, metric-context citation, architecture proof points, and the CLI/API commands a reviewer can run locally.
 
 Regenerate the demo page after answer-path changes:
 
@@ -141,20 +164,29 @@ The generated SQL groups by `p.category`, computes each category's share of tota
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the daily milestone plan. The goal is to complete a polished AI engineering portfolio project in one week with two verified commits per day.
 
-## Planned architecture
+## Architecture at a glance
 
-```text
-User question
-   |
-   v
-Question router -> Metric/RAG context -> SQL generator -> SQL safety validator
-   |                                                     |
-   |                                                     v
-   +-------------------- Explanation composer <- SQLite/DuckDB execution
-                                      |
-                                      v
-                         Tests, evals, traces, API/UI
+See [`docs/architecture.md`](docs/architecture.md) for the expanded architecture notes, diagrams, verification loop, and production extension plan.
+
+```mermaid
+flowchart LR
+    user[Business user question] --> router[Question router]
+    router --> glossary[Metric glossary / RAG context]
+    glossary --> generator[Constrained SQL generator]
+    generator --> guardrail[Read-only SQL safety validator]
+    guardrail --> mart[SQLite demo sales mart]
+    mart --> composer[Executive answer composer]
+    composer --> surfaces[CLI · FastAPI · Static demo]
+    tests[Pytest + eval suite] -. verifies .-> router
+    tests -. verifies .-> guardrail
+    tests -. verifies .-> composer
 ```
+
+Reviewer proof points:
+
+- `src/agentic_bi_copilot/sql_agent.py` separates routing, SQL generation, validation, execution, metric-context retrieval, and answer composition.
+- `evals/supported_questions.json` plus `uv run python -m agentic_bi_copilot.cli --run-evals` provide deterministic quality gates for supported questions.
+- `src/agentic_bi_copilot/api.py` and `src/agentic_bi_copilot/demo.py` expose the same core answer path through API and static portfolio surfaces.
 
 ## Repository layout
 

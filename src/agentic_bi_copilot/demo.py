@@ -136,6 +136,15 @@ def render_demo_html(
 {rows_table}
     </section>
 
+    <section class="card">
+      <h2>Architecture proof points</h2>
+      <ul>
+        <li><strong>Router → metric context → SQL guardrail → execution → explanation</strong>: one deterministic path answers each supported business question end to end.</li>
+        <li><strong>Pytest + eval runner evidence</strong>: regression tests and the supported-question eval suite validate SQL safety, expected rows, metric citations, and answer text.</li>
+        <li><strong>FastAPI + static demo packaging</strong>: the same answer path is exposed through API endpoints and this dependency-light reviewer demo.</li>
+      </ul>
+    </section>
+
     <section class="grid">
       <article class="card">
         <h2>Metric context</h2>

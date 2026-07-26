@@ -24,4 +24,8 @@ def test_render_demo_html_includes_sample_questions_sql_rows_and_citations(tmp_p
     assert "4200.0" in html
     assert "Metric definition: Revenue" in html
     assert "docs/metric_glossary.md#revenue" in html
+    assert "Architecture proof points" in html
+    assert "Router → metric context → SQL guardrail → execution → explanation" in html
+    assert "Pytest + eval runner evidence" in html
+    assert "FastAPI + static demo packaging" in html
     assert "uv run python -m agentic_bi_copilot.cli" in html

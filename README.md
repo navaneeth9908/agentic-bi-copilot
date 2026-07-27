@@ -29,6 +29,7 @@ For a quick technical screen, this repo is designed to be reviewed in minutes ra
 | --- | --- | --- |
 | Supported use cases | `uv run python -m agentic_bi_copilot.cli --list-questions` | The copilot has an explicit question registry instead of accepting every prompt blindly. |
 | Deterministic quality gate | `uv run python -m agentic_bi_copilot.cli --run-evals` | Every supported question is checked for SQL safety, expected rows, answer text, and metric citations. |
+| Portfolio readiness | `uv run python -m agentic_bi_copilot.cli --completion-checklist` | Runs the deterministic evals and prints readiness status, delivery surfaces, completed milestones, and reviewer commands. |
 | End-to-end answer path | `uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 2` | Natural language is routed to safe SQL, executed on the demo mart, and returned with grounded BI context. |
 | API contract | `uv run --group dev pytest tests/test_api.py -q` | FastAPI health, question listing, answer responses, OpenAPI examples, and unsupported-question errors are covered. |
 | Local portfolio demo | [`docs/demo.html`](docs/demo.html) | The same deterministic answer path is packaged as a self-contained UI artifact for walkthroughs. |
@@ -37,12 +38,13 @@ The narrative for hiring teams: **Agentic BI Copilot is a production-minded AI e
 
 ## Current milestone
 
-The current milestone is a deterministic offline analytics path with grounded metric-definition context, FastAPI endpoints, a static portfolio demo page, recruiter-ready architecture documentation, and production packaging through Docker plus GitHub Actions CI:
+The current milestone is a deterministic offline analytics path with grounded metric-definition context, FastAPI endpoints, a static portfolio demo page, recruiter-ready architecture documentation, production packaging through Docker plus GitHub Actions CI, and a final completion checklist that ties each roadmap milestone to reviewer-visible evidence:
 
 ```bash
 uv run --group dev pytest tests/ -q
 uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli --run-evals
+uv run python -m agentic_bi_copilot.cli --completion-checklist
 uv run --group dev pytest tests/test_api.py -q
 uv run python -m agentic_bi_copilot.cli --render-demo docs/demo.html --db-path examples/demo_page.sqlite --limit 2
 docker build -t agentic-bi-copilot .
@@ -54,7 +56,7 @@ uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --li
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints, renders a self-contained `docs/demo.html` page with architecture proof points for local portfolio demos without extra UI dependencies, packages the CLI in a Docker image whose default command lists supported questions and whose entrypoint accepts normal question arguments, and runs GitHub Actions checks for pytest, CLI smoke output, and Docker build/run smoke coverage.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, prints a final portfolio completion checklist with readiness status, supported-question count, delivery surfaces, completed milestones, and reviewer commands, exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints, renders a self-contained `docs/demo.html` page with architecture proof points for local portfolio demos without extra UI dependencies, packages the CLI in a Docker image whose default command lists supported questions and whose entrypoint accepts normal question arguments, and runs GitHub Actions checks for pytest, CLI smoke output, and Docker build/run smoke coverage.
 
 ## Metric glossary / RAG context
 
@@ -78,6 +80,22 @@ Quality summary: PASS (100.0% pass rate, 0 failing cases)
 ```
 
 The evaluation dataset lives in `evals/supported_questions.json` and covers every supported sample question. The runner in `src/agentic_bi_copilot/evaluation.py` builds the demo mart when needed, executes the same safe offline answer path, and scores SQL safety, expected SQL fragments, deterministic rows, metric context, and answer text fragments. The formatted report includes a quality status line with pass rate and failing case IDs so CI logs and portfolio demos show a quick go/no-go summary before per-case details.
+
+## CLI example: portfolio completion checklist
+
+```bash
+uv run python -m agentic_bi_copilot.cli --completion-checklist
+```
+
+Expected deterministic header:
+
+```text
+Portfolio completion checklist: READY
+Supported questions: 4
+Quality gates: PASS (4/4 eval cases passing)
+```
+
+The checklist runs the deterministic eval suite, then summarizes the delivery surfaces, completed one-week milestones, and reviewer commands so the final project can be screened from a single CLI entry point. See [`docs/completion_checklist.md`](docs/completion_checklist.md) for the expected live-output fragments and next production step.
 
 ## Evaluation quality gates and failure handling
 
@@ -200,14 +218,15 @@ src/agentic_bi_copilot/   Python package
   metrics.py              Curated BI metric glossary retriever
   questions.py            Supported sample-question registry
   evaluation.py           Deterministic eval runner for supported questions
+  portfolio.py            Final readiness checklist and reviewer evidence formatter
   cli.py                  Local command-line smoke path
   api.py                  FastAPI health, sample-question, and ask-question endpoints
   demo.py                 Static HTML portfolio demo renderer
 evals/                    Supported-question evaluation datasets
 tests/                    Regression tests
-docs/                     Roadmap, API contract, static demo, metric glossary, evaluation quality, and architecture notes
+docs/                     Roadmap, API contract, static demo, metric glossary, evaluation quality, completion checklist, and architecture notes
 examples/                 Local generated demo databases, ignored by git
-.github/workflows/ci.yml  GitHub Actions pytest, CLI smoke, and Docker smoke checks
+.github/workflows/ci.yml  GitHub Actions pytest, CLI, checklist, and Docker smoke checks
 Dockerfile                Runtime container for the CLI smoke path
 .dockerignore             Build-context guard for local DB, venv, cache, and secret files
 ```

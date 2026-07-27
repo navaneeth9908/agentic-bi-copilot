@@ -28,7 +28,7 @@ flowchart LR
 4. **SQL safety validation** — the safety gate rejects non-`SELECT` statements and blocks mutating SQL before execution.
 5. **Reproducible analytics mart execution** — `data.py` builds a local SQLite sales mart so demos, tests, and evals run without external services or secrets.
 6. **Executive answer composition** — the answer layer returns rows, SQL, human-readable summary text, and cited metric-context snippets.
-7. **Delivery surfaces** — the same core answer path powers the CLI, FastAPI endpoints, and generated `docs/demo.html` portfolio page.
+7. **Delivery surfaces** — the same core answer path powers the CLI, FastAPI endpoints, generated `docs/demo.html` portfolio page, and final completion-checklist handoff.
 
 ## Verification loop
 
@@ -45,6 +45,7 @@ Verification artifacts are deliberately visible to reviewers:
 - `tests/` covers data generation, supported questions, SQL safety, metric context, evaluation behavior, API contracts, CLI behavior, and static demo rendering.
 - `evals/supported_questions.json` defines deterministic answer-quality checks for each supported question.
 - `uv run python -m agentic_bi_copilot.cli --run-evals` prints a concise quality-gate report for demos and CI logs.
+- `uv run python -m agentic_bi_copilot.cli --completion-checklist` reruns the evals and prints final portfolio readiness status, delivery surfaces, completed milestones, reviewer commands, and the milestone-to-evidence handoff for screening.
 - `docs/demo.html` now includes architecture proof points so a recruiter can connect the UI artifact back to the tested backend path.
 
 ## Why this design is market-relevant

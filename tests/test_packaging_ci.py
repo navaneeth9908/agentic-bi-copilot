@@ -44,6 +44,7 @@ def test_github_actions_ci_runs_pytest_cli_smoke_and_docker_smoke():
         'uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 2'
         in workflow
     )
+    assert "uv run python -m agentic_bi_copilot.cli --completion-checklist" in workflow
     assert "docker build -t agentic-bi-copilot:ci ." in workflow
     assert (
         'docker run --rm agentic-bi-copilot:ci "What is revenue by region?" --limit 2'

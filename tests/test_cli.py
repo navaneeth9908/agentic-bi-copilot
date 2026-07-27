@@ -49,3 +49,24 @@ def test_cli_renders_static_demo_html_file(capsys, tmp_path):
     assert "Agentic BI Copilot Demo" in html
     assert "What is revenue by region?" in html
     assert "GROUP BY c.region" in html
+
+
+def test_cli_prints_portfolio_completion_checklist(capsys, tmp_path):
+    exit_code = main(
+        [
+            "--completion-checklist",
+            "--db-path",
+            str(tmp_path / "sales_mart.sqlite"),
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Portfolio completion checklist: READY" in captured.out
+    assert "Supported questions: 4" in captured.out
+    assert "Quality gates: PASS (4/4 eval cases passing)" in captured.out
+    assert "FastAPI: /health, /questions, /ask" in captured.out
+    assert "Docker + GitHub Actions CI" in captured.out
+    assert "Review commands:" in captured.out
+    assert "uv run python -m agentic_bi_copilot.cli --run-evals" in captured.out

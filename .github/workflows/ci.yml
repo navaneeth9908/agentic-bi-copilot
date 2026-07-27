@@ -36,6 +36,9 @@ jobs:
       - name: Run CLI smoke query
         run: uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 2
 
+      - name: Run portfolio checklist smoke
+        run: uv run python -m agentic_bi_copilot.cli --completion-checklist
+
   docker:
     name: Docker build smoke
     runs-on: ubuntu-latest

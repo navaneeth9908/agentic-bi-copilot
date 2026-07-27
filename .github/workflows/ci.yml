@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Pytest and CLI smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: uv sync --frozen --group dev
+
+      - name: Run pytest
+        run: uv run --group dev pytest tests/ -q
+
+      - name: Run CLI smoke query
+        run: uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 2
+
+  docker:
+    name: Docker build smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t agentic-bi-copilot:ci .
+
+      - name: Run packaged CLI smoke command
+        run: docker run --rm agentic-bi-copilot:ci "What is revenue by region?" --limit 2

@@ -37,7 +37,7 @@ The narrative for hiring teams: **Agentic BI Copilot is a production-minded AI e
 
 ## Current milestone
 
-The current milestone is a deterministic offline analytics path with grounded metric-definition context, FastAPI endpoints, a static portfolio demo page, and recruiter-ready architecture documentation:
+The current milestone is a deterministic offline analytics path with grounded metric-definition context, FastAPI endpoints, a static portfolio demo page, recruiter-ready architecture documentation, and production packaging through Docker plus GitHub Actions CI:
 
 ```bash
 uv run --group dev pytest tests/ -q
@@ -45,13 +45,16 @@ uv run python -m agentic_bi_copilot.cli --list-questions
 uv run python -m agentic_bi_copilot.cli --run-evals
 uv run --group dev pytest tests/test_api.py -q
 uv run python -m agentic_bi_copilot.cli --render-demo docs/demo.html --db-path examples/demo_page.sqlite --limit 2
+docker build -t agentic-bi-copilot .
+docker run --rm agentic-bi-copilot
+docker run --rm agentic-bi-copilot "What is revenue by region?" --limit 2
 uv run python -m agentic_bi_copilot.cli "Which customer segment has the highest revenue?"
 uv run python -m agentic_bi_copilot.cli "What is revenue by region?" --limit 4
 uv run python -m agentic_bi_copilot.cli "What is the repeat customer rate?" --limit 1
 uv run python -m agentic_bi_copilot.cli "What is product category mix by revenue?" --limit 4
 ```
 
-Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints, renders a self-contained `docs/demo.html` page with architecture proof points for local portfolio demos without extra UI dependencies, and documents the system architecture in a reviewer-friendly format.
+Expected behavior: the copilot lists supported sample questions, builds a local demo sales mart, generates safe read-only SQL, retrieves curated BI metric definitions, returns ranked segment or region revenue, calculates a repeat-customer KPI, summarizes product/category revenue mix, cites the metric context used in each answer with source snippets, runs a deterministic evaluation suite that checks supported-question coverage, SQL safety, expected rows, metric context, answer text, evaluation quality status, and graceful failure reporting, exposes the same deterministic answer path through FastAPI health, sample-question, and ask-question endpoints, renders a self-contained `docs/demo.html` page with architecture proof points for local portfolio demos without extra UI dependencies, packages the CLI in a Docker image whose default command lists supported questions and whose entrypoint accepts normal question arguments, and runs GitHub Actions checks for pytest, CLI smoke output, and Docker build/run smoke coverage.
 
 ## Metric glossary / RAG context
 
@@ -204,4 +207,7 @@ evals/                    Supported-question evaluation datasets
 tests/                    Regression tests
 docs/                     Roadmap, API contract, static demo, metric glossary, evaluation quality, and architecture notes
 examples/                 Local generated demo databases, ignored by git
+.github/workflows/ci.yml  GitHub Actions pytest, CLI smoke, and Docker smoke checks
+Dockerfile                Runtime container for the CLI smoke path
+.dockerignore             Build-context guard for local DB, venv, cache, and secret files
 ```
